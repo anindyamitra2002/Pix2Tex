@@ -39,7 +39,7 @@ class LatexOCRTrainer:
             per_device_eval_batch_size=self.cfg.training.batch_size,
             gradient_accumulation_steps=self.cfg.training.gradient_accumulation_steps,
             warmup_steps=self.cfg.training.warmup_steps,
-            max_steps=self.cfg.training.max_steps,
+            num_train_epochs=self.cfg.training.num_train_epochs,
             learning_rate=self.cfg.training.learning_rate,
             fp16=not is_bf16_supported(),
             bf16=is_bf16_supported(),

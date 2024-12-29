@@ -1,30 +1,27 @@
 defaults:
   - _self_
-  - model: qwen
-  - training: default
-  - dataset: latex_ocr
 
 paths:
-  output_dir: "outputs"
-  best_model_dir: "outputs/best_model"
+  output_dir: "checkpoints"
+  best_model_dir: "checkpoints/best_model"
 
 dataset:
-  name: "hoang-quoc-trung/fusion-image-to-latex-datasets"
+  name: "anindya-hf-2002/pix2tex"
   train_split: "train"
   validation_split: "validation"
   test_split: "test"
   image_field: "image"
   latex_field: "latex"
   num_proc: 4
-  batch_size: 1000
+  batch_size: 64
 
 wandb:
-  project: "qwen2-vl-latex-ocr"
-  name: "qwen2-vl-latex-ocr-training"
+  project: "qwen2-vl-pix2tex"
+  name: "qwen2-vl-pix2tex-training-00"
   entity: null
 
 huggingface:
-  repo_id: "your-username/qwen2-vl-latex-ocr"  # Update this
+  repo_id: "anindya-hf-2002/qwen2-vl-pix2tex"  # Update this
   token: null  # Set via environment variable HF_TOKEN
   private: false
 
@@ -49,7 +46,7 @@ training:
   batch_size: 2
   gradient_accumulation_steps: 4
   warmup_steps: 5
-  max_steps: 30
+  num_train_epochs: 3
   learning_rate: 2e-4
   weight_decay: 0.01
   lr_scheduler_type: "linear"
