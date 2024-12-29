@@ -1,0 +1,66 @@
+defaults:
+  - _self_
+  - model: qwen
+  - training: default
+  - dataset: latex_ocr
+
+paths:
+  output_dir: "outputs"
+  best_model_dir: "outputs/best_model"
+
+dataset:
+  name: "hoang-quoc-trung/fusion-image-to-latex-datasets"
+  train_split: "train"
+  validation_split: "validation"
+  test_split: "test"
+  image_field: "image"
+  latex_field: "latex"
+  num_proc: 4
+  batch_size: 1000
+
+wandb:
+  project: "qwen2-vl-latex-ocr"
+  name: "qwen2-vl-latex-ocr-training"
+  entity: null
+
+huggingface:
+  repo_id: "your-username/qwen2-vl-latex-ocr"  # Update this
+  token: null  # Set via environment variable HF_TOKEN
+  private: false
+
+model:
+  name: "unsloth/Qwen2-VL-7B-Instruct"
+  load_in_4bit: true
+  use_gradient_checkpointing: "unsloth"
+  finetune:
+    vision_layers: true
+    language_layers: true
+    attention_modules: true
+    mlp_modules: true
+    r: 16
+    lora_alpha: 16
+    lora_dropout: 0
+    bias: "none"
+    random_state: 3407
+    use_rslora: false
+    loftq_config: null
+
+training:
+  batch_size: 2
+  gradient_accumulation_steps: 4
+  warmup_steps: 5
+  max_steps: 30
+  learning_rate: 2e-4
+  weight_decay: 0.01
+  lr_scheduler_type: "linear"
+  seed: 3407
+  max_seq_length: 2048
+  num_workers: 4
+  evaluation_strategy: "steps"
+  eval_steps: 100
+  save_strategy: "steps"
+  save_steps: 100
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false

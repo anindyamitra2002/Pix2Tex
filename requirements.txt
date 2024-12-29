@@ -1,0 +1,11 @@
+hydra-core
+wandb 
+unsloth 
+transformers 
+datasets 
+pillow 
+torch
+accelerate
+bitsandbytes 
+peft
+huggingface_hub
