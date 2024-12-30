@@ -1,7 +1,7 @@
 from unsloth.trainer import UnslothVisionDataCollator
 from unsloth import is_bf16_supported
 from trl import SFTTrainer, SFTConfig
-import wandb
+from unsloth import unsloth_train
 from typing import Dict, Any
 from huggingface_hub import HfFolder
 import os
@@ -13,7 +13,7 @@ class LatexOCRTrainer:
         self.tokenizer = tokenizer
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
-        self._init_wandb()
+        # self._init_wandb()
         self._setup_hf_token()
         
     def _init_wandb(self):
@@ -91,12 +91,12 @@ class LatexOCRTrainer:
     def train(self) -> Dict[str, Any]:
         """Run the training process"""
         trainer = self.setup_trainer()
-        training_stats = trainer.train()
+        training_stats = unsloth_train(trainer)
         
         # Push the best model to HuggingFace Hub
         trainer.push_to_hub()
         
-        wandb.finish()
+        # wandb.finish()
         return training_stats
 
     @staticmethod

@@ -1,6 +1,7 @@
 import hydra
 from omegaconf import DictConfig
 import argparse
+from unsloth import unsloth_train
 from dataset import LatexOCRDataset
 from model import LatexOCRModel
 from trainer import LatexOCRTrainer
@@ -39,7 +40,7 @@ def main(cfg: DictConfig) -> None:
         # Initialize dataset
         logger.info("Loading datasets...")
         dataset_module = LatexOCRDataset(cfg)
-        train_dataset, val_dataset, test_dataset = dataset_module.load_datasets()
+        train_dataset, val_dataset = dataset_module.load_datasets()
 
         # Initialize model and tokenizer
         logger.info("Initializing model...")
@@ -59,10 +60,6 @@ def main(cfg: DictConfig) -> None:
         logger.info("Training completed successfully!")
         logger.info(f"Training stats: {training_stats}")
 
-        # Run evaluation on test set
-        logger.info("Running evaluation on test set...")
-        test_results = trainer.evaluate(test_dataset)
-        logger.info(f"Test results: {test_results}")
 
     except Exception as e:
         logger.error(f"An error occurred during training: {str(e)}")

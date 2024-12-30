@@ -9,15 +9,15 @@ class LatexOCRDataset:
         self.cfg = cfg
         self.instruction = "Write the LaTeX representation for this image."
 
-    def load_datasets(self) -> Tuple[Dataset, Dataset, Dataset]:
+    def load_datasets(self) -> Tuple[Dataset, Dataset]:
         """Load train, validation and test datasets"""
         dataset_dict = load_dataset(self.cfg.dataset.name)
         
         train_dataset = self._process_split(dataset_dict[self.cfg.dataset.train_split])
         val_dataset = self._process_split(dataset_dict[self.cfg.dataset.validation_split])
-        test_dataset = self._process_split(dataset_dict[self.cfg.dataset.test_split])
+        # test_dataset = self._process_split(dataset_dict[self.cfg.dataset.test_split])
         
-        return train_dataset, val_dataset, test_dataset
+        return train_dataset, val_dataset
 
     def _process_split(self, dataset: Dataset) -> Dataset:
         """Process a dataset split"""

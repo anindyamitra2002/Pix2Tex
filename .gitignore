@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+outputs/
+checkpoints/
+wandb/
 # C extensions
 *.so
 
