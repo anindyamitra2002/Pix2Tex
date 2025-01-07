@@ -3,3 +3,12 @@ wandb
 datasets
 pillow 
 huggingface_hub
+transformers
+torch
+peft
+bitsandbytes
+accelerate
+qwen-vl-utils
+flash-attn==2.6.3
+accelerate==0.34.0
+einops==0.8.0

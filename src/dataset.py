@@ -1,15 +1,13 @@
-import os
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Tuple
 from datasets import Dataset, load_dataset
 from PIL import Image
-import torch
-
+import os
 class LatexOCRDataset:
     def __init__(self, cfg):
         self.cfg = cfg
         self.instruction = "Write the LaTeX representation for this image."
 
-    def load_datasets(self) -> Tuple[Dataset, Dataset]:
+    def load_datasets(self):
         """Load train, validation and test datasets"""
         dataset_dict = load_dataset(self.cfg.dataset.name)
         
@@ -19,30 +17,22 @@ class LatexOCRDataset:
         
         return train_dataset, val_dataset
 
-    def _process_split(self, dataset: Dataset) -> Dataset:
+    def _process_split(self, dataset: Dataset):
         """Process a dataset split"""
-        processed_dataset = dataset.map(
-            self._convert_sample,
-            remove_columns=dataset.column_names,
-            num_proc=self.cfg.dataset.num_proc
-        )
-        return processed_dataset
+        return [self._convert_sample(sample) for sample in dataset]
+        
 
-    def _convert_sample(self, sample: Dict) -> Dict:
+    def _convert_sample(self, sample: Dict):
         """Convert a single sample to the required conversation format"""
         image = sample[self.cfg.dataset.image_field]
-        if isinstance(image, str):  # If image is a path
-            image = Image.open(image).convert('RGB')
-        elif isinstance(image, dict):  # If image is already loaded
-            image = Image.fromarray(image['bytes']).convert('RGB')
+        image_path = os.path.join(self.cfg.dataset.image_dir, image)
         
-        conversation = {
-            "messages": [
+        conversation = [
                 {
                     "role": "user",
                     "content": [
                         {"type": "text", "text": self.instruction},
-                        {"type": "image", "image": image}
+                        {"type": "image", "image": image_path}
                     ]
                 },
                 {
@@ -52,7 +42,6 @@ class LatexOCRDataset:
                     ]
                 }
             ]
-        }
         return conversation
 
     @staticmethod

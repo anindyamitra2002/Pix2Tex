@@ -6,7 +6,8 @@ paths:
   best_model_dir: "checkpoints/best_model"
 
 dataset:
-  name: "anindya-hf-2002/pix2tex"
+  name: "anindya-hf-2002/pix2tex_data"
+  image_dir: "/teamspace/studios/this_studio/Pix2Tex/data"
   train_split: "train"
   validation_split: "validation"
   test_split: "test"
@@ -26,9 +27,8 @@ huggingface:
   private: false
 
 model:
-  name: "unsloth/Qwen2-VL-7B-Instruct-bnb-4bit"
+  name: "Qwen/Qwen2-VL-2B-Instruct"
   load_in_4bit: true
-  use_gradient_checkpointing: "unsloth"
   finetune:
     vision_layers: true
     language_layers: true

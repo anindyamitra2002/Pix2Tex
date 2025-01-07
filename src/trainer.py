@@ -1,29 +1,20 @@
-from unsloth.trainer import UnslothVisionDataCollator
-from unsloth import is_bf16_supported
 from trl import SFTTrainer, SFTConfig
-from unsloth import unsloth_train
 from typing import Dict, Any
 from huggingface_hub import HfFolder
+from qwen_vl_utils import process_vision_info
 import os
+import wandb
 
 class LatexOCRTrainer:
-    def __init__(self, cfg, model, tokenizer, train_dataset, eval_dataset):
+    def __init__(self, cfg, model, processor, train_dataset, eval_dataset, peft_config):
         self.cfg = cfg
         self.model = model
-        self.tokenizer = tokenizer
+        self.processor = processor
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
-        # self._init_wandb()
+        self.peft_config = peft_config
+        self._init_wandb()
         self._setup_hf_token()
-        
-    def _init_wandb(self):
-        """Initialize Weights & Biases logging"""
-        wandb.init(
-            project=self.cfg.wandb.project,
-            name=self.cfg.wandb.name,
-            entity=self.cfg.wandb.entity,
-            config=self.cfg
-        )
 
     def _setup_hf_token(self):
         """Setup HuggingFace token for model pushing"""
@@ -31,6 +22,47 @@ class LatexOCRTrainer:
             HfFolder.save_token(os.environ["HF_TOKEN"])
         elif self.cfg.huggingface.token:
             HfFolder.save_token(self.cfg.huggingface.token)
+    
+    def _init_wandb(self):
+        """Initialize Weights & Biases logging"""
+        wandb.init(
+            project=self.cfg.wandb.project,
+            name=self.cfg.wandb.name
+        )
+
+
+    def collate_fn(self, examples):
+        """Custom collate function for processing batches"""
+        # Get the texts and images, and apply the chat template
+        texts = [
+            self.processor.apply_chat_template(example, tokenize=False)
+            for example in examples
+        ]
+        # Process images using process_vision_info
+        image_inputs = [
+            process_vision_info([example])[0]
+            for example in examples
+        ]
+
+        # Tokenize the texts and process the images
+        batch = self.processor(
+            text=texts,
+            images=image_inputs,
+            return_tensors="pt",
+            padding=True
+        )
+
+        # The labels are the input_ids, and we mask the padding tokens in the loss computation
+        labels = batch["input_ids"].clone()
+        labels[labels == self.processor.tokenizer.pad_token_id] = -100
+
+        # Ignore the image token indices in the loss computation (Qwen2VL specific)
+        image_tokens = [151652, 151653, 151655]
+        for image_token_id in image_tokens:
+            labels[labels == image_token_id] = -100
+
+        batch["labels"] = labels
+        return batch
 
     def setup_trainer(self) -> SFTTrainer:
         """Setup the SFT trainer"""
@@ -41,8 +73,6 @@ class LatexOCRTrainer:
             warmup_steps=self.cfg.training.warmup_steps,
             num_train_epochs=self.cfg.training.num_train_epochs,
             learning_rate=self.cfg.training.learning_rate,
-            fp16=not is_bf16_supported(),
-            bf16=is_bf16_supported(),
             logging_steps=1,
             optim="adamw_8bit",
             weight_decay=self.cfg.training.weight_decay,
@@ -78,30 +108,23 @@ class LatexOCRTrainer:
 
         trainer = SFTTrainer(
             model=self.model,
-            tokenizer=self.tokenizer,
-            data_collator=UnslothVisionDataCollator(self.model, self.tokenizer),
+            tokenizer=self.processor.tokenizer,
+            data_collator=self.collate_fn,
             train_dataset=self.train_dataset,
             eval_dataset=self.eval_dataset,
-            compute_metrics=self.compute_metrics,
-            args=training_args,
+            peft_config=self.peft_config,
+            args=training_args
         )
         
         return trainer
 
     def train(self) -> Dict[str, Any]:
         """Run the training process"""
+        
         trainer = self.setup_trainer()
-        training_stats = unsloth_train(trainer)
+        train_result = trainer.train()
         
         # Push the best model to HuggingFace Hub
         trainer.push_to_hub()
-        
-        # wandb.finish()
-        return training_stats
-
-    @staticmethod
-    def compute_metrics(eval_preds):
-        """Compute evaluation metrics"""
-        predictions, labels = eval_preds
-        # Return empty dict as loss is computed automatically
-        return {}
+        wandb.finish()
+        return train_result.metrics

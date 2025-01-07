@@ -2,12 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
-outputs/
+unsloth_compiled_cache/
 checkpoints/
 wandb/
+data/
 # C extensions
 *.so
-
 # Distribution / packaging
 .Python
 build/
