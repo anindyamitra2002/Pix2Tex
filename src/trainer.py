@@ -51,7 +51,6 @@ class LatexOCRTrainer:
             return_tensors="pt",
             padding=True
         )
-
         # The labels are the input_ids, and we mask the padding tokens in the loss computation
         labels = batch["input_ids"].clone()
         labels[labels == self.processor.tokenizer.pad_token_id] = -100
@@ -108,7 +107,7 @@ class LatexOCRTrainer:
 
         trainer = SFTTrainer(
             model=self.model,
-            tokenizer=self.processor.tokenizer,
+            processing_class=self.processor.tokenizer,
             data_collator=self.collate_fn,
             train_dataset=self.train_dataset,
             eval_dataset=self.eval_dataset,
