@@ -23,8 +23,7 @@ class LatexOCRModel:
             self.cfg.model.name,
             device_map="auto",
             torch_dtype=torch.bfloat16,
-            quantization_config=bnb_config,
-            attn_implementation="flash_attention_2"
+            quantization_config=bnb_config
             
         )
         

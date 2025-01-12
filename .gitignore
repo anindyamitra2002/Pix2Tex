@@ -3,9 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 unsloth_compiled_cache/
-checkpoints/
+# checkpoints/
 wandb/
 data/
+src/outputs/
 # C extensions
 *.so
 # Distribution / packaging

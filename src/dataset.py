@@ -2,17 +2,32 @@ from typing import Dict, Tuple
 from datasets import Dataset, load_dataset
 from PIL import Image
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 class LatexOCRDataset:
     def __init__(self, cfg):
         self.cfg = cfg
         self.instruction = "Write the LaTeX representation for this image."
+        self.train_size = self.cfg.dataset.train_size
+        self.val_size = self.cfg.dataset.val_size
 
     def load_datasets(self):
         """Load train, validation and test datasets"""
         dataset_dict = load_dataset(self.cfg.dataset.name)
+        train_dataset = dataset_dict[self.cfg.dataset.train_split]
+        if self.train_size and self.train_size < len(train_dataset):
+            logger.info(f"Limiting train dataset from {len(train_dataset)} to {self.train_size} samples")
+            train_dataset = train_dataset.select(range(self.train_size))
         
-        train_dataset = self._process_split(dataset_dict[self.cfg.dataset.train_split])
-        val_dataset = self._process_split(dataset_dict[self.cfg.dataset.validation_split])
+        # Load and limit validation dataset
+        val_dataset = dataset_dict[self.cfg.dataset.validation_split]
+        if self.val_size and self.val_size < len(val_dataset):
+            logger.info(f"Limiting validation dataset from {len(val_dataset)} to {self.val_size} samples")
+            val_dataset = val_dataset.select(range(self.val_size))
+        
+        train_dataset = self._process_split(train_dataset)
+        val_dataset = self._process_split(val_dataset)
         # test_dataset = self._process_split(dataset_dict[self.cfg.dataset.test_split])
         
         return train_dataset, val_dataset
