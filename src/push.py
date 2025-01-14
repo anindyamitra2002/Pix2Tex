@@ -47,7 +47,7 @@ class ModelDeployer:
     def attach_adapter(self, model):
         """Attach the trained adapter to the model"""
         logger.info(f"Loading adapter from {self.cfg.huggingface.repo_id}")
-        merged_model = PeftModel.from_pretrained(model,"/teamspace/studios/this_studio/Pix2Tex/checkpoints/checkpoint-500/")
+        merged_model = PeftModel.from_pretrained(model,self.cfg.model.finetune.adapter_path)
         merged_model = merged_model.merge_and_unload()
         
         logger.info("Successfully attached adapter to model")
@@ -109,12 +109,7 @@ def main(cfg: DictConfig) -> None:
     # Deploy model
     deployer = ModelDeployer(cfg)
     model, processor = deployer.deploy()
-    
-    # Now you can use the model and processor for inference
-    evaluator = LatexOCREvaluator(model, processor, cfg)
-    metrics, predictions, references = evaluator.evaluate()
-    
-    logger.info(f"Evaluation metrics: {metrics}")
+
 
 if __name__ == "__main__":
     main()

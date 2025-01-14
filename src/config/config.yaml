@@ -32,7 +32,7 @@ model:
   name: "Qwen/Qwen2-VL-2B-Instruct"
   load_in_4bit: true
   finetune:
-    adapter_path: "checkpoints/checkpoint-500"
+    adapter_path: "/teamspace/studios/this_studio/Pix2Tex/checkpoints/checkpoint-500/"
     vision_layers: true
     language_layers: true
     attention_modules: true
@@ -71,3 +71,5 @@ eval:
   max_new_tokens: 512
   log_every_n_batches: 10
   output_dir: "evaluation_results"
+  pred_file: "predictions.txt"
+  ref_file: "references.txt"
