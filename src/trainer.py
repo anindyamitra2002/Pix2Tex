@@ -70,7 +70,7 @@ class LatexOCRTrainer:
             per_device_eval_batch_size=self.cfg.training.batch_size,
             gradient_accumulation_steps=self.cfg.training.gradient_accumulation_steps,
             warmup_steps=self.cfg.training.warmup_steps,
-            num_train_epochs=self.cfg.training.num_train_epochs,
+            max_steps=self.cfg.training.num_train_steps,
             learning_rate=self.cfg.training.learning_rate,
             logging_steps=1,
             optim="adamw_8bit",
@@ -81,7 +81,7 @@ class LatexOCRTrainer:
             report_to="wandb",
             
             # Evaluation settings
-            evaluation_strategy=self.cfg.training.evaluation_strategy,
+            eval_strategy=self.cfg.training.evaluation_strategy,
             eval_steps=self.cfg.training.eval_steps,
             
             # Saving settings

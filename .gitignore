@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 unsloth_compiled_cache/
-# checkpoints/
+.env
+checkpoints/
 wandb/
 data/
 src/outputs/
@@ -131,7 +132,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/

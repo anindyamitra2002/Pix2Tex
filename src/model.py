@@ -15,7 +15,8 @@ class LatexOCRModel:
             load_in_4bit=self.cfg.model.load_in_4bit,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.bfloat16
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_quant_storage=torch.bfloat16,
         )
 
         # Initialize model and processor
@@ -24,7 +25,6 @@ class LatexOCRModel:
             device_map="auto",
             torch_dtype=torch.bfloat16,
             quantization_config=bnb_config
-            
         )
         
         processor = Qwen2VLProcessor.from_pretrained(self.cfg.model.name, min_pixels=256*28*28, max_pixels=512*28*28, padding_side="right")

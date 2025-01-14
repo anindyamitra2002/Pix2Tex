@@ -2,8 +2,8 @@ defaults:
   - _self_
 
 paths:
-  output_dir: "checkpoints"
-  best_model_dir: "checkpoints/best_model"
+  output_dir: "/teamspace/studios/this_studio/Pix2Tex/checkpoints"
+  best_model_dir: "/teamspace/studios/this_studio/Pix2Tex/checkpoints/best_model"
 
 dataset:
   name: "anindya-hf-2002/pix2tex_data"
@@ -13,14 +13,14 @@ dataset:
   test_split: "test"
   image_field: "image"
   latex_field: "latex"
-  train_size: 50000  
-  val_size: 5000
+  train_size: 10000  
+  val_size: 200
   num_proc: 4
   batch_size: 64
 
 wandb:
   project: "qwen2-vl-pix2tex"
-  name: "qwen2-vl-pix2tex-training-00"
+  name: "qwen2-vl-pix2tex-training-01"
   entity: null
 
 huggingface:
@@ -32,6 +32,7 @@ model:
   name: "Qwen/Qwen2-VL-2B-Instruct"
   load_in_4bit: true
   finetune:
+    adapter_path: "checkpoints/checkpoint-500"
     vision_layers: true
     language_layers: true
     attention_modules: true
@@ -48,7 +49,7 @@ training:
   batch_size: 2
   gradient_accumulation_steps: 4
   warmup_steps: 5
-  num_train_epochs: 3
+  num_train_steps: 500
   learning_rate: 2e-4
   weight_decay: 0.01
   lr_scheduler_type: "linear"
@@ -56,10 +57,15 @@ training:
   max_seq_length: 2048
   num_workers: 4
   evaluation_strategy: "steps"
-  eval_steps: 100
+  eval_steps: 10
   save_strategy: "steps"
-  save_steps: 100
+  save_steps: 10
   save_total_limit: 3
   load_best_model_at_end: true
   metric_for_best_model: "eval_loss"
   greater_is_better: false
+
+eval:
+  batch_size: 16
+  max_new_tokens: 512
+  log_every_n_batches: 10
