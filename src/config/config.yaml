@@ -66,6 +66,8 @@ training:
   greater_is_better: false
 
 eval:
+  test_size: 300
   batch_size: 16
   max_new_tokens: 512
   log_every_n_batches: 10
+  output_dir: "evaluation_results"
